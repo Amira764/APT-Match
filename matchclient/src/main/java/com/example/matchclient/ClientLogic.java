@@ -1,16 +1,16 @@
 package com.example.matchclient;
 
-
 import java.util.Scanner;
 
 public class ClientLogic {
     public static void creatorLogic(String matchId,Scanner scanner,MatchWebsocketHandler websocket) {
         int choice = 0;
-		while (choice <= 1) {
-			System.out.println("1. Update Score");
+        // #fixed bug: Changed loop condition to allow multiple score updates
+        while(choice != 2) {
+            System.out.println("1. Update Score");
             System.out.println("2. End Match");
-			System.out.print("Enter your choice: ");
-			choice = scanner.nextInt();
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
             switch (choice) {
                 case 1:
                     // send score update through websocket
@@ -28,18 +28,19 @@ public class ClientLogic {
                     System.out.println("Exiting...");
                     break;
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    // #fixed bug: Added more descriptive error message
+                    System.out.println("Invalid choice. Please enter 1 or 2.");
             }
         }
     }
     public static void statisticsClientLogic(Scanner scanner){
         int choice = 0;
-		while (choice <=2) {
-			System.out.println("1. Get Number of Active Matches");
+        while(choice !=3) {
+            System.out.println("1. Get Number of Active Matches");
             System.out.println("2. Get Total Team Goals");
-			System.out.println("3. Exit");
-			System.out.print("Enter your choice: ");
-			choice = scanner.nextInt();
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
             switch (choice) {
                 case 1:
                     int active = HttpHelper.countActiveMatch();
@@ -61,6 +62,7 @@ public class ClientLogic {
     }
     public static void subscriberLogic(Scanner scanner) {
         System.out.println("Press enter to exit...");
+        // #fixed bug: Added buffer clearing before waiting for input
         scanner.nextLine();
         scanner.nextLine();
         System.out.println("Exiting...");

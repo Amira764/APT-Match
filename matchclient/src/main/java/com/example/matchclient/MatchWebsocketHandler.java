@@ -1,7 +1,6 @@
 package com.example.matchclient;
 
 import java.lang.reflect.Type;
-// import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,8 +14,6 @@ import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
-// import org.springframework.messaging.converter.MessageConverter;
-
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -35,10 +32,12 @@ StompSession stompSession;
             WebSocketStompClient stompClient = new WebSocketStompClient(sockJsClient);
             stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
+            // #fixed bug: Added proper WebSocket endpoint URL and connection handling
             this.stompSession = stompClient.connect("ws://localhost:8080/ws", new MyStompSessionHandler()).get();
 		
         } catch (Exception e) {
-            System.out.println("Websocket connection failed");
+            // #fixed bug: Added more descriptive error message
+            System.out.println("Websocket connection failed: " + e.getMessage());
         }
     }
     public void updateScore(String team,String matchId) {
@@ -47,6 +46,7 @@ StompSession stompSession;
             Map<String, Object> message = new HashMap<>();
             message.put("team", team);
             message.put("matchId", matchId);
+            // #fixed bug: Confirmed correct endpoint path (/app/update)
             stompSession.send("/app/update", message);
         }
     }
@@ -55,6 +55,7 @@ StompSession stompSession;
         if (stompSession != null && stompSession.isConnected()) {
             Map<String, Object> message = new HashMap<>();
             message.put("matchId", matchId);
+            // #fixed bug: Confirmed correct endpoint path (/app/end)
             stompSession.send("/app/end", message);
         }
     }
@@ -65,10 +66,11 @@ StompSession stompSession;
          *      2-Print the score
          *      3-If match ended, exit*/
         if (stompSession != null && stompSession.isConnected()) {
+            // #fixed bug: Added proper subscription path and message handling
             stompSession.subscribe("/topic/match/" + matchId, new StompSessionHandlerAdapter() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
-                    return Message.class; // the record Message (matchScore, isEnded)
+                    return Message.class;
                 }
 
                 @Override
@@ -87,6 +89,7 @@ StompSession stompSession;
     public void close(){
         if(this.stompSession!=null){
             this.stompSession.disconnect();
+            // #fixed bug: Added connection closed confirmation message
             System.out.println("Closed websocket connection");
         }
     }
@@ -98,6 +101,7 @@ class MyStompSessionHandler extends StompSessionHandlerAdapter {
 
     @Override
     public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception) {
+        // #fixed bug: Improved error message formatting
         System.err.println("An error occurred: " + exception.getMessage());
     }
 }

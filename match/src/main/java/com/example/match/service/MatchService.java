@@ -27,15 +27,15 @@ public class MatchService {
         }
         if(team.equalsIgnoreCase("A")){
             match.incrementScoreA();
+            return match.getTeamScore("A"); // #fixed bug: Return updated score
         }
         else if(team.equalsIgnoreCase("B")){
             match.incrementScoreB();
+            return match.getTeamScore("B"); // #fixed bug: Return updated score
         }
         else{
             return -1;
         }
-        return -1;
-
     }
     public String getMatchDetails(String id) {
         Match match=matchMap.get(id);
@@ -45,7 +45,10 @@ public class MatchService {
         return match.getMatchScore();
     }
     public void endMatch(String id){
-        matchMap.get(id).endMatch();
+        Match match = matchMap.get(id);
+        if (match != null) {
+            match.endMatch(); // #fixed bug: Added null check
+        }
     }
     public int countActiveMatches() {
         //TODO: Implement a function that returns the number of live matches in functional programming style

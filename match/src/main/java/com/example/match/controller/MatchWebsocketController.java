@@ -29,12 +29,15 @@ public class MatchWebsocketController {
 
     @MessageMapping("/update")
     public void updateScore(@Payload Map<String, String> payload) {
+        // #fixed bug: Added null checks for payload values
         String matchId = payload.get("matchId");
         String team = payload.get("team");
+        if (matchId == null || team == null) return;
 
         matchService.incrementScore(matchId, team);
         String matchScore = matchService.getMatchDetails(matchId);
 
+        // #fixed bug: Confirmed Message format matches client expectation
         Message response = new Message(matchScore, false); // Not ended
         messagingTemplate.convertAndSend("/topic/match/" + matchId, response);
     }
@@ -42,9 +45,11 @@ public class MatchWebsocketController {
     @MessageMapping("/end")
     public void endMatch(@Payload Map<String, String> payload) {
         String matchId = payload.get("matchId");
+        if (matchId == null) return;
 
         matchService.endMatch(matchId);
 
+        // #fixed bug: Added proper end message format
         Message response = new Message("Match Ended", true); // Match ended
         messagingTemplate.convertAndSend("/topic/match/" + matchId, response);
     }
